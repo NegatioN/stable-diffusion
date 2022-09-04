@@ -67,3 +67,21 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 model = model.to(device)
 seed_everything(0)
 
+
+batch_size = 1
+prompt = "A dummy"
+data = [batch_size * [prompt]]
+precision_scope = autocast #if opt.precision=="autocast" else nullcontext
+
+size = 256
+n_samples, C, H, W, factor = 1, 4, size, size, 8
+start_code = torch.randn([n_samples, C, H // factor, W // factor], device=device)
+with torch.no_grad():
+    with precision_scope("cuda"):
+        with model.ema_scope():
+            tic = time.time()
+
+            toc = time.time()
+
+
+print(f'Took time: {toc - tic}')
