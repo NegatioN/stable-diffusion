@@ -73,15 +73,31 @@ prompt = "A dummy"
 data = [batch_size * [prompt]]
 precision_scope = autocast #if opt.precision=="autocast" else nullcontext
 
+%%time
+c = model.get_learned_conditioning(prompt[0])
+c
 size = 256
 n_samples, C, H, W, factor = 1, 4, size, size, 8
+scale, ddim_eta, ddim_steps = 8, 0.0, 1
 start_code = torch.randn([n_samples, C, H // factor, W // factor], device=device)
+sampler = PLMSSampler(model)
+uc = None
+if scale != 1.0:
+    uc = model.get_learned_conditioning(batch_size * [""])
+
+%%time
 with torch.no_grad():
     with precision_scope("cuda"):
         with model.ema_scope():
-            tic = time.time()
+            shape = [C, H // factor, W // factor]
+            samples_ddim, _ = sampler.sample(S=ddim_steps,
+                                                conditioning=c,
+                                                batch_size=n_samples,
+                                                shape=shape,
+                                                verbose=False,
+                                                unconditional_guidance_scale=scale,
+                                                unconditional_conditioning=uc,
+                                                eta=ddim_eta,
+                                                x_T=start_code)
 
-            toc = time.time()
-
-
-print(f'Took time: {toc - tic}')
+sampler??
