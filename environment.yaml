@@ -9,6 +9,9 @@ dependencies:
   - pytorch=1.11.0
   - torchvision=0.12.0
   - numpy=1.19.2
+  - ipykernel
+  - ipywidgets
+  - google-colab
   - pip:
     - albumentations==0.4.3
     - diffusers
